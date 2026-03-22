@@ -8,11 +8,15 @@ const MENUS = [
     { name: "된장찌개", cuisine: "한식", tags: ["혼밥", "가성비"], weather: ["추움", "흐림"], wikiTitle: "Doenjang-jjigae" },
     { name: "순대국", cuisine: "한식", tags: ["혼밥", "해장", "가성비"], weather: ["추움", "흐림"], wikiTitle: "Sundae (Korean food)" },
     { name: "설렁탕", cuisine: "한식", tags: ["혼밥", "해장"], weather: ["추움"], wikiTitle: "Seolleongtang" },
-    { name: "삼계탕", cuisine: "한식", tags: ["혼밥", "데이트", "기력보충"], weather: ["추움", "더움", "비/눈"], wikiTitle: "Samgyetang" },
+    { name: "삼계탕", cuisine: "한식", tags: ["혼밥", "데이트"], weather: ["추움", "더움", "비/눈"], wikiTitle: "Samgyetang" },
     { name: "콩나물국밥", cuisine: "한식", tags: ["혼밥", "해장", "가성비"], weather: ["추움", "흐림", "비/눈"], wikiTitle: "Kongnamul-gukbap" },
     { name: "비빔밥", cuisine: "한식", tags: ["혼밥", "가벼운"], weather: ["맑음"], wikiTitle: "Bibimbap" },
     { name: "김밥", cuisine: "한식", tags: ["혼밥", "가성비", "가벼운"], weather: ["맑음"], wikiTitle: "Gimbap" },
     { name: "쌈밥", cuisine: "한식", tags: ["혼밥", "가벼운"], weather: ["맑음"], wikiTitle: "Ssambap" },
+    { name: "삼겹살", cuisine: "한식", tags: ["회식"], weather: ["맑음", "흐림", "비/눈"], wikiTitle: "Samgyeopsal" },
+    { name: "양꼬치", cuisine: "중식", tags: ["회식"], weather: ["맑음", "흐림"], wikiTitle: "Kebab" },
+    { name: "소고기구이", cuisine: "한식", tags: ["회식", "데이트"], weather: ["맑음"], wikiTitle: "Galbi" },
+    { name: "회", cuisine: "한식", tags: ["회식", "데이트"], weather: ["맑음"], wikiTitle: "Hoe (food)" },
     // ── 일식 ──
     { name: "초밥", cuisine: "일식", tags: ["데이트", "회식", "가벼운"], weather: ["맑음"], wikiTitle: "Sushi" },
     { name: "라멘", cuisine: "일식", tags: ["혼밥", "해장"], weather: ["추움", "비/눈"], wikiTitle: "Ramen" },
@@ -166,6 +170,9 @@ async function fetchWeather() {
 
 // ── 추천 로직 ──
 function pickMenus(weatherLabel, mealHistory, tag) {
+    const clean = t => t.replace(/\s+/g, '').trim();
+    const notRecentlyEaten = m => mealHistory.every(meal => getSimilarity(clean(m.name), clean(meal)) < 0.7);
+
     let pool;
     if (weatherLabel === "급추움") {
         const soupKeywords = ["찌개", "국", "탕", "라멘", "우동", "짬뽕", "훠궈", "나베", "칼국수", "수제비", "쌀국수"];
@@ -173,13 +180,26 @@ function pickMenus(weatherLabel, mealHistory, tag) {
     } else {
         pool = MENUS.filter(m => m.weather.includes(weatherLabel));
     }
-    if (tag && tag !== "전체") pool = pool.filter(m => m.tags.includes(tag));
-    const clean = t => t.replace(/\s+/g, '').trim();
-    pool = pool.filter(m => {
-        const menuName = clean(m.name);
-        return mealHistory.every(meal => getSimilarity(menuName, clean(meal)) < 0.7);
-    });
+
+    // 태그 필터 (부족해도 날씨 풀로만 fallback, 태그는 유지)
+    if (tag && tag !== "전체") {
+        const tagged = pool.filter(m => m.tags.includes(tag));
+        if (tagged.length >= 3) pool = tagged;
+        else {
+            // 날씨 무시하고 태그만으로 전체에서 찾기
+            const tagOnly = MENUS.filter(m => m.tags.includes(tag));
+            pool = tagOnly.length >= 3 ? tagOnly : MENUS.filter(m => m.tags.includes(tag));
+        }
+    }
+
+    pool = pool.filter(notRecentlyEaten);
+
+    // 3개 미만이면 태그 유지하고 먹은 거 제한 해제 → 그래도 부족하면 전체 fallback
+    if (pool.length < 3) {
+        pool = tag && tag !== "전체" ? MENUS.filter(m => m.tags.includes(tag)) : [...MENUS];
+    }
     if (pool.length < 3) pool = [...MENUS];
+
     return pool.sort(() => Math.random() - 0.5).slice(0, 3);
 }
 
