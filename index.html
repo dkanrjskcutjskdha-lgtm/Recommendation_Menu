@@ -6,13 +6,12 @@
     <title>오늘 뭐 먹지?</title>
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF9F43 100%);
-            --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            --primary: #FF6B6B;
         }
 
         body {
             font-family: 'Pretendard', -apple-system, sans-serif;
-            background: var(--bg-gradient);
+            background: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,20 +23,17 @@
         .container {
             width: 100%;
             max-width: 420px;
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             padding: 40px 30px;
             border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             text-align: center;
         }
 
         h1 {
             font-size: 28px;
             margin-bottom: 10px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--primary);
         }
 
         .panel {
@@ -67,7 +63,7 @@
         button {
             width: 100%;
             padding: 18px;
-            background: var(--primary-gradient);
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 20px;
@@ -75,6 +71,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(255, 107, 107, 0.35);
         }
 
         button:active { transform: scale(0.95); }
