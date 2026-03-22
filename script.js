@@ -29,6 +29,28 @@ const MENUS = [
     { name: "쌀국수", cuisine: "아시안", tags: ["혼밥", "해장", "가벼운"], weather: ["추움", "비/눈"], wikiTitle: "Phở" },
 ];
 
+// ── 유사도 계산 (편집 거리 기반) ──
+function getSimilarity(s1, s2) {
+    const editDistance = (a, b) => {
+        const tmp = [];
+        for (let i = 0; i <= a.length; i++) tmp[i] = [i];
+        for (let j = 0; j <= b.length; j++) tmp[0][j] = j;
+        for (let i = 1; i <= a.length; i++) {
+            for (let j = 1; j <= b.length; j++) {
+                tmp[i][j] = Math.min(
+                    tmp[i - 1][j] + 1,
+                    tmp[i][j - 1] + 1,
+                    tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+                );
+            }
+        }
+        return tmp[a.length][b.length];
+    };
+    const longer = s1.length > s2.length ? s1 : s2;
+    if (longer.length === 0) return 1.0;
+    return (longer.length - editDistance(s1, s2)) / longer.length;
+}
+
 // ── Wikipedia 이미지 가져오기 ──
 async function fetchFromWiki(lang, title) {
     const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
@@ -152,7 +174,11 @@ function pickMenus(weatherLabel, mealHistory, tag) {
         pool = MENUS.filter(m => m.weather.includes(weatherLabel));
     }
     if (tag && tag !== "전체") pool = pool.filter(m => m.tags.includes(tag));
-    pool = pool.filter(m => !mealHistory.includes(m.name));
+    const clean = t => t.replace(/\s+/g, '').trim();
+    pool = pool.filter(m => {
+        const menuName = clean(m.name);
+        return mealHistory.every(meal => getSimilarity(menuName, clean(meal)) < 0.7);
+    });
     if (pool.length < 3) pool = [...MENUS];
     return pool.sort(() => Math.random() - 0.5).slice(0, 3);
 }
