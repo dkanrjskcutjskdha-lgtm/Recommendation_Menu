@@ -163,6 +163,19 @@
             </div>
         </div>
 
+        <div class="panel">
+            <label style="font-size:15px; font-weight:700; display:block; margin-bottom:8px;">어떤 상황인가요?</label>
+            <select id="tag">
+                <option value="전체">전체 보기</option>
+                <option value="혼밥">나홀로 식사 (혼밥)</option>
+                <option value="데이트">분위기 있는 데이트</option>
+                <option value="회식">다 함께 회식</option>
+                <option value="가벼운">부담 없는 가벼운 식사</option>
+                <option value="가성비">가성비 최고 메뉴</option>
+                <option value="해장">해장이 필요한 아침/점심</option>
+            </select>
+        </div>
+
         <button onclick="pickMenu()">오늘의 메뉴 추천받기</button>
         <div id="result"></div>
         <div id="results" style="margin-top:20px;"></div>
