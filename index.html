@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘 뭐 먹지?</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+    .subtitle { text-align: center; color: #888; margin-bottom: 2rem; }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .panel h2 { font-size: 1rem; color: #555; margin-bottom: 1rem; }
+
+    #weather-info {
+      background: #eaf4ff;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
+    #weather-info small { color: #7f8c8d; font-size: 0.78rem; }
+
+    label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 0.3rem; }
+
+    input, select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    input:focus, select:focus { outline: none; border-color: #3498db; }
+
+    button#recommend-btn {
+      display: block;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      padding: 0.9rem;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button#recommend-btn:hover { background: #c0392b; }
+
+    #reason {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      font-size: 0.95rem;
+      color: #555;
+      min-height: 1.4rem;
+    }
+
+    #results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 280px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+
+    .img-wrap {
+      width: 100%;
+      height: 200px;
+      background: #e0e0e0;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+      transition: opacity 0.3s ease, transform 0.35s ease;
+      background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .card-img:hover { transform: scale(1.04); }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* 하단 다크 그라데이션 오버레이 */
+    .img-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2rem 0.85rem 0.6rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.68) 0%, transparent 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+    }
+    .overlay-name {
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+    }
+    .overlay-hint {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.65rem;
+      white-space: nowrap;
+    }
+
+    /* Wikipedia 출처 표기 */
+    .img-caption {
+      position: absolute;
+      bottom: 0; right: 0;
+      padding: 0.18rem 0.45rem;
+      background: rgba(0,0,0,0.45);
+      color: rgba(255,255,255,0.75);
+      font-size: 0.6rem;
+      letter-spacing: 0.02em;
+      border-top-left-radius: 5px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* 이미지 없는 메뉴용 플레이스홀더 */
+    .img-fallback {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-size: 1.1rem;
+      color: #aaa;
+      font-weight: 600;
+    }
+    .img-fallback::before {
+      content: "🍽";
+      font-size: 2rem;
+    }
+
+    .card-body { padding: 0.85rem 1rem 1rem; }
+
+    .card-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #1a1a1a;
+      margin-bottom: 0.45rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      margin: 0.15rem 0.1rem;
+    }
+    .badge.cuisine { background: #eaf4ff; color: #2980b9; }
+    .badge.tag     { background: #fef9e7; color: #b7950b; }
+
+    .weather-tags {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #95a5a6;
+    }
+
+    .naver-btn {
+      display: block;
+      width: 100%;
+      margin-top: 0.75rem;
+      padding: 0.55rem 0;
+      background: #03c75a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .naver-btn:hover { background: #02a64c; }
+  </style>
+</head>
+<body>
+
+  <h1>오늘 뭐 먹지?</h1>
+  <p class="subtitle">날씨·식사 기록 기반 점심 추천기</p>
+
+  <div class="panel">
+    <h2>날씨 (자동 조회 — 서울)</h2>
+    <div id="weather-info">날씨 불러오는 중...</div>
+  </div>
+
+  <div class="panel">
+    <h2>최근 두 끼를 입력해주세요</h2>
+    <label>어제 점심 또는 오늘 아침</label>
+    <input id="meal1" type="text" placeholder="예: 김치찌개">
+    <label>마지막으로 드신 끼니</label>
+    <input id="meal2" type="text" placeholder="예: 햄버거">
+    <label>어떤 상황인가요?</label>
+    <select id="tag">
+      <option value="전체">전체 보기</option>
+      <option value="혼밥">나홀로 식사 (혼밥)</option>
+      <option value="데이트">분위기 있는 데이트</option>
+      <option value="회식">다 함께 회식</option>
+      <option value="가벼운">부담 없는 가벼운 식사</option>
+      <option value="가성비">가성비 최고 메뉴</option>
+      <option value="해장">해장이 필요한 아침/점심</option>
+    </select>
+  </div>
+
+  <button id="recommend-btn">오늘의 메뉴 추천받기</button>
+
+  <p id="reason"></p>
+  <div id="results"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
