@@ -1,293 +1,173 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>오늘 뭐 먹지?</title>
-  <style>
-    :root {
-      --primary-color: #ff6b6b;
-      --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF9F43 100%);
-      --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-      --text-color: #333;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 뭐 먹지?</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF9F43 100%);
+            --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
 
-    body {
-      font-family: 'Pretendard', -apple-system, sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 30px;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px 30px;
-      border-radius: 40px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
-      backdrop-filter: blur(10px);
-    }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    h1 {
-      font-size: 28px;
-      font-weight: 800;
-      text-align: center;
-      margin-bottom: 10px;
-      background: linear-gradient(to right, #ff6b6b, #ff9f43);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+        .panel {
+            background: rgba(241, 243, 245, 0.5);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
 
-    .subtitle {
-      text-align: center;
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 30px;
-    }
+        .input-group label {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
 
-    .panel {
-      background: rgba(241, 243, 245, 0.5);
-      border-radius: 25px;
-      padding: 22px;
-      margin-bottom: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.8);
-    }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
 
-    .panel h2 { font-size: 1rem; color: #555; margin-bottom: 1rem; }
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    .input-group label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #555;
-      margin-bottom: 8px;
-      display: block;
-      margin-left: 5px;
-    }
+        button:active { transform: scale(0.95); }
 
-    label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 0.3rem; }
+        #result {
+            margin-top: 25px;
+            font-weight: bold;
+            font-size: 20px;
+            color: #ff6b6b;
+        }
 
-    input, select {
-      width: 100%;
-      padding: 15px;
-      border: 2px solid transparent;
-      border-radius: 15px;
-      background: #fff;
-      font-size: 15px;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-      margin-bottom: 1rem;
-    }
+        #results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
-    }
+        .card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            width: 280px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .card:hover { transform: translateY(-4px); }
 
-    #weather-info {
-      background: white;
-      padding: 15px;
-      border-radius: 15px;
-      font-size: 13px;
-      text-align: center;
-      color: #666;
-    }
+        .img-wrap { width: 100%; height: 200px; background: #e0e0e0; position: relative; overflow: hidden; }
 
-    button#recommend-btn {
-      display: block;
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto 2rem;
-      padding: 18px;
-      background: linear-gradient(135deg, #ff6b6b, #ee5253);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 10px 20px rgba(238, 82, 83, 0.3);
-    }
+        .card-img {
+            width: 100%; height: 200px; object-fit: cover; display: block;
+            transition: opacity 0.3s ease, transform 0.35s ease;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+        .card-img:hover { transform: scale(1.04); }
 
-    button#recommend-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
-    }
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
-    button#recommend-btn:active {
-      transform: scale(0.96);
-      box-shadow: 0 5px 10px rgba(238, 82, 83, 0.2);
-    }
+        .img-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 2rem 0.85rem 0.6rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.68) 0%, transparent 100%);
+            display: flex; justify-content: space-between; align-items: flex-end;
+            pointer-events: none;
+        }
+        .overlay-name { color: #fff; font-size: 1.05rem; font-weight: 700; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+        .overlay-hint { color: rgba(255,255,255,0.65); font-size: 0.65rem; white-space: nowrap; }
 
-    #reason {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto 1.5rem;
-      font-size: 0.95rem;
-      color: #555;
-      min-height: 1.4rem;
-    }
+        .img-fallback {
+            width: 100%; height: 200px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.4rem; font-size: 1.1rem; color: #aaa; font-weight: 600;
+        }
+        .img-fallback::before { content: "🍽"; font-size: 2rem; }
 
-    #results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
+        .card-body { padding: 0.85rem 1rem 1rem; text-align: left; }
+        .card-body h3 { font-size: 1.1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 0.45rem; }
 
-    .card {
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      width: 280px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.1);
-      transition: transform 0.2s;
-      cursor: pointer;
-    }
-    .card:hover { transform: translateY(-4px); }
-
-    .img-wrap {
-      width: 100%;
-      height: 200px;
-      background: #e0e0e0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card-img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-      transition: opacity 0.3s ease, transform 0.35s ease;
-      background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-    }
-    .card-img:hover { transform: scale(1.04); }
-
-    @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .img-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 2rem 0.85rem 0.6rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.68) 0%, transparent 100%);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      pointer-events: none;
-    }
-    .overlay-name {
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
-    }
-    .overlay-hint {
-      color: rgba(255,255,255,0.65);
-      font-size: 0.65rem;
-      white-space: nowrap;
-    }
-
-    .img-fallback {
-      width: 100%;
-      height: 200px;
-      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      font-size: 1.1rem;
-      color: #aaa;
-      font-weight: 600;
-    }
-    .img-fallback::before {
-      content: "🍽";
-      font-size: 2rem;
-    }
-
-    .card-body { padding: 0.85rem 1rem 1rem; }
-
-    .card-body h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: #1a1a1a;
-      margin-bottom: 0.45rem;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      margin: 0.15rem 0.1rem;
-    }
-    .badge.cuisine { background: #eaf4ff; color: #2980b9; }
-    .badge.tag     { background: #fef9e7; color: #b7950b; }
-  </style>
+        .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 20px; font-size: 0.75rem; margin: 0.15rem 0.1rem; }
+        .badge.cuisine { background: #eaf4ff; color: #2980b9; }
+        .badge.tag { background: #fef9e7; color: #b7950b; }
+    </style>
 </head>
 <body>
-<div class="container">
+    <div class="container">
+        <h1>오늘 뭐 먹지?</h1>
+        <p style="color:#888; font-size:14px;">날씨·식사 기록 기반 추천</p>
 
-  <h1>오늘 뭐 먹지?</h1>
-  <p class="subtitle">날씨·식사 기록 기반 점심 추천기</p>
+        <div class="panel">
+            <div id="weather-info" style="font-size:13px; color:#666;">날씨 불러오는 중...</div>
+        </div>
 
-  <div class="panel">
-    <h2>날씨 (자동 조회 — 서울)</h2>
-    <div id="weather-info">날씨 불러오는 중...</div>
-  </div>
+        <div class="panel">
+            <div class="input-group">
+                <label>1. 최근 식사</label>
+                <input id="meal1" type="text" placeholder="예: 김치찌개">
+                <label>2. 그 전 식사</label>
+                <input id="meal2" type="text" placeholder="예: 제육볶음">
+            </div>
+        </div>
 
-  <div class="input-container" style="max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <h3 style="margin-top: 0;">🍴 최근 무엇을 드셨나요?</h3>
-    <p style="font-size: 0.85em; color: #888; margin-bottom: 20px;">입력하신 메뉴는 추천에서 제외됩니다.</p>
-
-    <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-        <label for="meal1" style="display: block; margin-bottom: 5px; font-weight: bold;">1. 최근 식사</label>
-        <input id="meal1" type="text" placeholder="예: 김치찌개" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+        <button onclick="pickMenu()">오늘의 메뉴 추천받기</button>
+        <div id="result"></div>
+        <div id="results" style="margin-top:20px;"></div>
     </div>
-
-    <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-        <label for="meal2" style="display: block; margin-bottom: 5px; font-weight: bold;">2. 그 전 식사</label>
-        <input id="meal2" type="text" placeholder="예: 햄버거" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
-    </div>
-  </div>
-
-  <div class="panel">
-    <label>어떤 상황인가요?</label>
-    <select id="tag">
-      <option value="전체">전체 보기</option>
-      <option value="혼밥">나홀로 식사 (혼밥)</option>
-      <option value="데이트">분위기 있는 데이트</option>
-      <option value="회식">다 함께 회식</option>
-      <option value="가벼운">부담 없는 가벼운 식사</option>
-      <option value="가성비">가성비 최고 메뉴</option>
-      <option value="해장">해장이 필요한 아침/점심</option>
-    </select>
-  </div>
-
-  <button id="recommend-btn">오늘의 메뉴 추천받기</button>
-
-  <p id="reason"></p>
-  <div id="results"></div>
-
-  <script src="script.js"></script>
-</div>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -184,48 +184,57 @@ function pickMenus(weatherLabel, mealHistory, tag) {
 }
 
 // ── UI 초기화 및 이벤트 ──
-const weatherEl = document.getElementById("weather-info");
-const resultsEl = document.getElementById("results");
-const btn = document.getElementById("recommend-btn");
 let weatherData = null;
 
 async function init() {
-    weatherEl.innerHTML = "날씨 정보를 불러오는 중입니다...";
     weatherData = await fetchWeather();
-    const avgStr = (weatherData && weatherData.avgTemp != null)
-        ? ` · 7일 평균 ${weatherData.avgTemp.toFixed(1)}°C`
-        : "";
-    weatherEl.innerHTML = `현재 기온: <strong>${weatherData.todayTemp}°C</strong> (${weatherData.weatherLabel})${avgStr}`;
+    const weatherEl = document.getElementById("weather-info");
+    if (weatherEl) {
+        const avgStr = (weatherData && weatherData.avgTemp != null)
+            ? ` · 7일 평균 ${weatherData.avgTemp.toFixed(1)}°C`
+            : "";
+        weatherEl.innerHTML = `현재 기온: <strong>${weatherData.todayTemp}°C</strong> (${weatherData.weatherLabel})${avgStr}`;
+    }
 }
 
-btn.addEventListener("click", () => {
+function pickMenu() {
     const audio = new Audio('bell.wav');
     audio.volume = 0.5;
     audio.play().catch(e => console.log("재생 실패:", e));
 
-    const mealHistory = [document.getElementById("meal1").value, document.getElementById("meal2").value].filter(Boolean);
-    const tag = document.getElementById("tag").value;
-    const picks = pickMenus(weatherData.weatherLabel, mealHistory, tag);
+    if (!weatherData) { alert("날씨 정보 로딩 중입니다. 잠시 후 다시 시도해주세요."); return; }
 
-    resultsEl.innerHTML = picks.map((m, idx) => `
-        <div class="card" onclick="searchNaverMap('${m.name}')">
-            <div class="img-wrap">
-                <img id="img-${idx}" class="card-img" data-name="${m.name}" data-wiki="${m.wikiTitle || ''}" src="">
-                <div id="fallback-${idx}" class="img-fallback" style="display:none;">${m.name}</div>
-                <div class="img-overlay">
-                    <span class="overlay-name">${m.name}</span>
-                    <span class="overlay-hint">📍 주변 맛집 보기</span>
+    const mealHistory = [document.getElementById("meal1").value, document.getElementById("meal2").value].filter(Boolean);
+    const tagEl = document.getElementById("tag");
+    const tag = tagEl ? tagEl.value : "전체";
+    const picks = pickMenus(weatherData.weatherLabel, mealHistory, tag);
+    const resultEl = document.getElementById("result");
+
+    const resultsEl = document.getElementById("results");
+    if (resultsEl) {
+        resultsEl.innerHTML = picks.map((m, idx) => `
+            <div class="card" onclick="searchNaverMap('${m.name}')">
+                <div class="img-wrap">
+                    <img id="img-${idx}" class="card-img" data-name="${m.name}" data-wiki="${m.wikiTitle || ''}" src="">
+                    <div id="fallback-${idx}" class="img-fallback" style="display:none;">${m.name}</div>
+                    <div class="img-overlay">
+                        <span class="overlay-name">${m.name}</span>
+                        <span class="overlay-hint">📍 주변 맛집 보기</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3>${m.name}</h3>
+                    <span class="badge cuisine">${m.cuisine}</span>
+                    ${m.tags.map(t => `<span class="badge tag">${t}</span>`).join("")}
                 </div>
             </div>
-            <div class="card-body">
-                <h3>${m.name}</h3>
-                <span class="badge cuisine">${m.cuisine}</span>
-                ${m.tags.map(t => `<span class="badge tag">${t}</span>`).join("")}
-            </div>
-        </div>
-    `).join("");
-
-    picks.forEach((_, idx) => loadCardImage(idx));
-});
+        `).join("");
+        picks.forEach((_, idx) => loadCardImage(idx));
+    } else if (resultEl) {
+        resultEl.innerHTML = picks.map(m =>
+            `<div onclick="searchNaverMap('${m.name}')" style="cursor:pointer; margin:8px 0;">${m.name} (${m.cuisine})</div>`
+        ).join("");
+    }
+}
 
 init();
