@@ -173,11 +173,9 @@ async function init() {
 }
 
 btn.addEventListener("click", () => {
-    const audio = new Audio('https://get-selection.com/assets/sounds/bell.mp3');
+    const audio = new Audio('bell.wav');
     audio.volume = 0.5;
-    audio.play().catch(e => {
-        console.error("소리 재생 최종 실패:", e.name, e.message);
-    });
+    audio.play().catch(e => console.log("재생 실패:", e));
 
     const mealHistory = [document.getElementById("meal1").value, document.getElementById("meal2").value].filter(Boolean);
     const tag = document.getElementById("tag").value;
