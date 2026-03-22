@@ -237,12 +237,22 @@
     <div id="weather-info">날씨 불러오는 중...</div>
   </div>
 
+  <div class="input-container" style="max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h3 style="margin-top: 0;">🍴 최근 무엇을 드셨나요?</h3>
+    <p style="font-size: 0.85em; color: #888; margin-bottom: 20px;">입력하신 메뉴는 추천에서 제외됩니다.</p>
+
+    <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+        <label for="meal1" style="display: block; margin-bottom: 5px; font-weight: bold;">1. 최근 식사</label>
+        <input id="meal1" type="text" placeholder="예: 김치찌개" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+    </div>
+
+    <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+        <label for="meal2" style="display: block; margin-bottom: 5px; font-weight: bold;">2. 그 전 식사</label>
+        <input id="meal2" type="text" placeholder="예: 햄버거" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+    </div>
+  </div>
+
   <div class="panel">
-    <h2>최근 두 끼를 입력해주세요</h2>
-    <label>어제 점심 또는 오늘 아침</label>
-    <input id="meal1" type="text" placeholder="예: 김치찌개">
-    <label>마지막으로 드신 끼니</label>
-    <input id="meal2" type="text" placeholder="예: 햄버거">
     <label>어떤 상황인가요?</label>
     <select id="tag">
       <option value="전체">전체 보기</option>
